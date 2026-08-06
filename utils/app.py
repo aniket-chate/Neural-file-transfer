@@ -19,8 +19,11 @@ from wtforms import (
     HiddenField
 )
 
-from models import VGGEncoder, Decoder
-from utils import adaptive_instance_normalization
+from utils.models import VGGEncoder, Decoder
+from utils.utils import (
+    adaptive_instance_normalization,
+    calc_mean_std
+)
 
 
 # ============================================================

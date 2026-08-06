@@ -1,9 +1,12 @@
 import argparse
 import torch
 from pathlib import Path
-from utils import *
+from utils.models import VGGEncoder, Decoder
+from utils.utils import (
+    adaptive_instance_normalization,
+    calc_mean_std
+)
 from torch.utils.data import DataLoader
-from models import *
 import torch.optim as optim
 from tqdm import tqdm
 from torchvision.utils import save_image
