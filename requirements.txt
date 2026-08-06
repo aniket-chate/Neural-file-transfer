@@ -1,0 +1,14 @@
+Flask>=3.0.0
+Flask-Bootstrap
+Flask-WTF
+WTForms
+Werkzeug
+
+torch
+torchvision
+
+Pillow
+
+tqdm
+
+gunicorn

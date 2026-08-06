@@ -1,0 +1,25 @@
+# Virtual environments
+venv/
+venv311/
+
+# Datasets
+content_data/
+style_data/
+test2017/
+test2017.zip
+train_3/
+train_3.zip
+
+# Temporary folders
+templates - Copy/
+
+# Flask uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+
+# VS Code
+.vscode/

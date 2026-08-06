@@ -1,0 +1,19 @@
+content_dir: D:\Neural File Transfer\test2017\test2017
+style_dir: D:\Neural File Transfer\train_3\train_3
+vgg: D:/Neural File Transfer/utils/vgg_normalised.pth
+experiment: big_dataset
+final_size: 512
+content_size: 512
+style_size: 512
+crop: True
+batch_size: 2
+lr: 0.0001
+lr_decay: 5e-05
+epochs: 20
+content_weight: 1.0
+style_weight: 10
+log_interval: 1
+save_interval: 2
+resume: False
+decoder_path: None
+optimizer_path: None
