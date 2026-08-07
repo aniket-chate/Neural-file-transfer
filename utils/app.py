@@ -92,36 +92,31 @@ class UploadForm(FlaskForm):
 # Device
 # ============================================================
 
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
+device = torch.device("cpu")
+torch.set_num_threads(1)
 print(f"Using device : {device}")
 
 
-# ============================================================
-# Load Encoder
-# ============================================================
+encoder = None
+decoder = None
 
-encoder = VGGEncoder(str(VGG_PATH)).to(device)
+def load_models():
+    global encoder, decoder
+    
+    
+    if encoder is None:
+        encoder = VGGEncoder(VGG_PATH).to(device)
+        encoder.eval()
 
-encoder.eval()
-
-
-# ============================================================
-# Load Decoder
-# ============================================================
-
-decoder = Decoder().to(device)
-
-decoder.load_state_dict(
-    torch.load(
-        DECODER_PATH,
-        map_location=device
-    )
-)
-
-decoder.eval()
+    if decoder is None:
+        decoder = Decoder().to(device)
+        decoder.load_state_dict(
+            torch.load(
+                DECODER_PATH,
+                map_location="cpu"
+            )
+        )
+        decoder.eval()
 # ============================================================
 # Utility Functions
 # ============================================================
@@ -143,7 +138,7 @@ def allowed_file(filename):
 def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
 
     transform = transforms.Compose([
-        transforms.Resize((512, 512)),
+        transforms.Resize((256,256)),
         transforms.ToTensor()
     ])
 
@@ -300,15 +295,19 @@ def index():
             # -------------------------
             # Style Transfer
             # -------------------------
+            load_models()
+            
+            
 
-            output = style_transfer(
-                content_image,
-                style_image,
-                encoder,
-                decoder,
-                alpha,
-                device
-            )
+            with torch.inference_mode():
+                output = style_transfer(
+                    content_image,
+                    style_image,
+                    encoder,
+                    decoder,
+                    alpha,
+                    device
+                )
 
             # -------------------------
             # Save Result
