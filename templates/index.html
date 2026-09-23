@@ -838,7 +838,7 @@
 
         try {
             if (!contentInput.files.length || !styleInput.files.length) {
-                form.submit();
+                HTMLFormElement.prototype.submit.call(form);
                 return false;
             }
 
