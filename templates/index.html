@@ -475,6 +475,7 @@
     .faq-section .accordion-body {
         color: #94a3b8;
     }
+    .gallery-section,.features-section,.pricing-section,.contact-section{margin-top:4rem;} html{scroll-behavior:smooth;scroll-padding-top:90px;}
 </style>
 </head>
 <body>
@@ -493,18 +494,18 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Gallery</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
             </ul>
-            <a href="#" class="btn btn-sm btn-outline-light ms-3 rounded-pill px-4">Sign In</a>
+            <button type="button" class="btn btn-sm btn-outline-light ms-3 rounded-pill px-4" onclick="openAuthModal()">Sign In</button>
         </div>
     </div>
 </nav>
 
-<div class="header-section">
+<div class="header-section" id="home">
     <div class="container">
         <h1 class="display-4 fw-bold">STYLEFORGE AI</h1>
         <p class="lead" style="border-right: 2px solid rgba(255,255,255,0.75); white-space: nowrap; overflow: hidden; width: 0; animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite; margin: 0 auto; display: inline-block; text-align: left;">Redefine Reality with AI-Powered Artistry</p>
@@ -655,6 +656,71 @@
     </div>
 </section>
 
+
+<section class="container gallery-section fade-in-up" id="gallery">
+    <div class="card">
+        <div class="card-header text-center py-3">My Gallery</div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                <p class="text-muted mb-0">Your generated results are saved in this browser for quick access.</p>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="clearGallery()">Clear Gallery</button>
+            </div>
+            <div id="galleryGrid" class="row g-4"></div>
+            <div id="galleryEmpty" class="text-center text-muted py-5">
+                <i class="fas fa-images fa-2x mb-3"></i>
+                <p class="mb-0">No generated artwork saved yet. Create your first result above.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container features-section fade-in-up" id="features">
+    <div class="card">
+        <div class="card-header text-center py-3">Features</div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4"><div class="text-center h-100 p-3"><i class="fas fa-wand-magic-sparkles fa-2x mb-3" style="color:#c084fc;"></i><h5>AI Style Transfer</h5><p class="text-muted">Apply an artistic reference to your content image using the AdaIN pipeline.</p></div></div>
+                <div class="col-md-4"><div class="text-center h-100 p-3"><i class="fas fa-sliders fa-2x mb-3" style="color:#818cf8;"></i><h5>Style Strength</h5><p class="text-muted">Control the blend between original and stylized representations.</p></div></div>
+                <div class="col-md-4"><div class="text-center h-100 p-3"><i class="fas fa-cloud-arrow-up fa-2x mb-3" style="color:#f472b6;"></i><h5>Browser Uploads</h5><p class="text-muted">Images are optimized in the browser before the neural transfer request.</p></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pricing-section fade-in-up" id="pricing">
+    <div class="card">
+        <div class="card-header text-center py-3">Pricing</div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Free</h5><div class="display-6 fw-bold mb-3">₹0</div><p class="text-muted">Try the core style-transfer experience.</p><button type="button" class="btn btn-outline-light rounded-pill" onclick="selectPlan('Free')">Use Free</button></div></div>
+                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Creator</h5><div class="display-6 fw-bold mb-3">₹199</div><p class="text-muted">Planned creator features and saved artwork workflow.</p><button type="button" class="btn btn-primary rounded-pill" onclick="selectPlan('Creator')">Choose Creator</button></div></div>
+                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Studio</h5><div class="display-6 fw-bold mb-3">₹499</div><p class="text-muted">Planned higher-volume workflow for advanced users.</p><button type="button" class="btn btn-outline-light rounded-pill" onclick="selectPlan('Studio')">Choose Studio</button></div></div>
+            </div>
+            <p id="planMessage" class="text-center text-muted mt-4 mb-0"></p>
+        </div>
+    </div>
+</section>
+
+<section class="container contact-section fade-in-up" id="contact">
+    <div class="card">
+        <div class="card-header text-center py-3">Contact</div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-5"><h5>Let's connect</h5><p class="text-muted">Have feedback, a bug report, or a collaboration idea? Send a message.</p><p class="mb-2"><i class="fas fa-envelope me-2"></i>hello@neuralart.ai</p><button type="button" class="btn btn-outline-light rounded-pill mt-2" onclick="openApiDocs()">View API Docs</button></div>
+                <div class="col-md-7">
+                    <form id="contactForm" onsubmit="sendContact(event)">
+                        <input class="form-control mb-3" id="contactName" placeholder="Your name" required>
+                        <input class="form-control mb-3" id="contactEmail" type="email" placeholder="Your email" required>
+                        <textarea class="form-control mb-3" id="contactMessage" rows="4" placeholder="Your message" required></textarea>
+                        <button class="btn btn-primary rounded-pill" type="submit">Send Message</button>
+                    </form>
+                    <div id="contactStatus" class="small text-muted mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="container faq-section fade-in-up">
     <div class="card">
         <div class="card-header text-center py-3">FAQs</div>
@@ -735,10 +801,10 @@
             </div>
             <div class="col-lg-2 col-md-6">
                 <h5>Quick Links</h5>
-                <a href="#" class="footer-link">Home</a>
-                <a href="#" class="footer-link">About Us</a>
-                <a href="#" class="footer-link">Showcase</a>
-                <a href="#" class="footer-link">API Docs</a>
+                <a href="#home" class="footer-link">Home</a>
+                <a href="#features" class="footer-link">About Us</a>
+                <a href="#gallery" class="footer-link">Showcase</a>
+                <a href="#contact" class="footer-link" onclick="openApiDocs(); return false;">API Docs</a>
             </div>
             <div class="col-lg-3 col-md-6">
                 <h5>Contact Us</h5>
@@ -749,10 +815,10 @@
             <div class="col-lg-3 col-md-6">
                 <h5>Follow Us</h5>
                 <div class="d-flex mb-3">
-                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                    <a href="https://twitter.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/aniket-chate/Neural-file-transfer" target="_blank" rel="noopener" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
                 </div>
                 <p class="small text-muted">Subscribe to our newsletter for the latest updates.</p>
             </div>
@@ -763,6 +829,36 @@
         </div>
     </div>
 </footer>
+
+
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background:#1e293b;color:#e2e8f0;border:1px solid rgba(255,255,255,.12);border-radius:20px;">
+    <div class="modal-header border-secondary"><h5 class="modal-title"><i class="fas fa-user-astronaut me-2"></i><span id="authTitle">Sign In</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div id="authLoggedOut">
+        <div class="btn-group w-100 mb-3"><button type="button" class="btn btn-outline-light active" id="loginTab" onclick="setAuthMode('login')">Sign In</button><button type="button" class="btn btn-outline-light" id="registerTab" onclick="setAuthMode('register')">Create Account</button></div>
+        <input id="authName" class="form-control mb-3 d-none" placeholder="Your name">
+        <input id="authEmail" class="form-control mb-3" type="email" placeholder="Email" autocomplete="email">
+        <input id="authPassword" class="form-control mb-3" type="password" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="btn btn-primary w-100 rounded-pill" onclick="submitAuth()">Continue</button>
+        <p class="small text-muted mt-3 mb-0">Demo account data is stored locally in this browser; this is not production authentication.</p>
+        <div id="authStatus" class="small mt-2"></div>
+      </div>
+      <div id="authLoggedIn" class="d-none text-center py-3"><i class="fas fa-circle-check fa-3x mb-3" style="color:#34d399;"></i><h5 id="accountName"></h5><p class="text-muted" id="accountEmail"></p><button type="button" class="btn btn-outline-danger rounded-pill" onclick="signOut()">Sign Out</button></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="modal fade" id="apiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background:#1e293b;color:#e2e8f0;border:1px solid rgba(255,255,255,.12);border-radius:20px;">
+    <div class="modal-header border-secondary"><h5 class="modal-title">API / Integration Info</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p class="text-muted">The current public app exposes the Flask home endpoint for the style-transfer form.</p>
+      <div class="p-3 rounded-3" style="background:#0f172a;"><div><strong>POST</strong> /</div><div class="small text-muted mt-2">multipart/form-data</div><div class="small mt-2">content: image</div><div class="small">style: image</div><div class="small">alpha: 0.0 - 1.0</div></div>
+      <p class="small text-muted mt-3 mb-0">The response is an HTML page containing the generated image data URI.</p>
+    </div>
+  </div></div>
+</div>
 
 <!-- Loading Overlay -->
 <div class="loader-overlay" id="loader">
@@ -940,6 +1036,7 @@
             if (resultContainer) {
                 resultContainer.innerHTML = '';
                 resultContainer.appendChild(document.importNode(serverResult, true));
+                saveResultToGallery(serverResult.querySelector('img')?.src, contentFile.name, styleFile.name);
             }
 
             clearError();
@@ -1108,6 +1205,66 @@
 
 
     }
+
+    const GALLERY_KEY = 'neuralart_gallery_v1';
+    const ACCOUNT_KEY = 'neuralart_account_v1';
+
+    function readGallery() { try { return JSON.parse(localStorage.getItem(GALLERY_KEY) || '[]'); } catch (_) { return []; } }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch])); }
+    function renderGallery() {
+        const grid = document.getElementById('galleryGrid'), empty = document.getElementById('galleryEmpty');
+        if (!grid || !empty) return;
+        const items = readGallery(); grid.innerHTML = ''; empty.classList.toggle('d-none', items.length > 0);
+        items.forEach((item,index) => {
+            const col=document.createElement('div'); col.className='col-md-6 col-lg-4';
+            col.innerHTML='<div class="card h-100"><img src="'+item.src+'" class="card-img-top" alt="Generated artwork '+(index+1)+'" style="height:260px;object-fit:contain;background:#0f172a;"><div class="card-body"><div class="small text-muted">Content: '+escapeHtml(item.content)+'</div><div class="small text-muted">Style: '+escapeHtml(item.style)+'</div><div class="d-flex gap-2 mt-3"><a href="'+item.src+'" download="neuralart-gallery-'+(index+1)+'.jpg" class="btn btn-sm btn-outline-light rounded-pill">Download</a><button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="removeGalleryItem('+index+')">Remove</button></div></div></div>';
+            grid.appendChild(col);
+        });
+    }
+    function saveResultToGallery(src, content, style) {
+        if (!src) return;
+        const items=readGallery(); items.unshift({src,content:content||'content image',style:style||'style image',createdAt:Date.now()});
+        try { localStorage.setItem(GALLERY_KEY, JSON.stringify(items.slice(0,8))); renderGallery(); } catch (_) { localStorage.removeItem(GALLERY_KEY); }
+    }
+    function removeGalleryItem(index) { const items=readGallery(); items.splice(index,1); localStorage.setItem(GALLERY_KEY,JSON.stringify(items)); renderGallery(); }
+    function clearGallery() { localStorage.removeItem(GALLERY_KEY); renderGallery(); }
+
+    let authMode='login';
+    function openAuthModal(){ updateAuthUI(); bootstrap.Modal.getOrCreateInstance(document.getElementById('authModal')).show(); }
+    function setAuthMode(mode){
+        authMode=mode; document.getElementById('authTitle').textContent=mode==='login'?'Sign In':'Create Account';
+        document.getElementById('authName').classList.toggle('d-none',mode==='login');
+        document.getElementById('loginTab').classList.toggle('active',mode==='login');
+        document.getElementById('registerTab').classList.toggle('active',mode==='register');
+        document.getElementById('authPassword').setAttribute('autocomplete',mode==='login'?'current-password':'new-password');
+        document.getElementById('authStatus').textContent='';
+    }
+    function submitAuth(){
+        const name=document.getElementById('authName').value.trim(), email=document.getElementById('authEmail').value.trim().toLowerCase(), password=document.getElementById('authPassword').value, status=document.getElementById('authStatus');
+        if(!email||!password||(authMode==='register'&&!name)){status.textContent='Please fill all required fields.';status.style.color='#fca5a5';return;}
+        if(password.length<4){status.textContent='Password must contain at least 4 characters.';status.style.color='#fca5a5';return;}
+        if(authMode==='register'){localStorage.setItem(ACCOUNT_KEY,JSON.stringify({name,email,password}));localStorage.setItem(ACCOUNT_KEY+'_active','1');}
+        else {let account=null;try{account=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||'null');}catch(_){}
+            if(!account||account.email!==email||account.password!==password){status.textContent='No matching local account found. Create an account first.';status.style.color='#fca5a5';return;}
+            localStorage.setItem(ACCOUNT_KEY+'_active','1');}
+        updateAuthUI();
+    }
+    function updateAuthUI(){
+        const active=localStorage.getItem(ACCOUNT_KEY+'_active')==='1'; let account=null; try{account=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||'null');}catch(_){}
+        document.getElementById('authLoggedOut').classList.toggle('d-none',active); document.getElementById('authLoggedIn').classList.toggle('d-none',!active);
+        const button=document.querySelector('.navbar button[onclick="openAuthModal()"]'); if(button) button.textContent=active&&account?account.name:'Sign In';
+        if(active&&account){document.getElementById('accountName').textContent='Welcome, '+account.name;document.getElementById('accountEmail').textContent=account.email;}
+    }
+    function signOut(){localStorage.removeItem(ACCOUNT_KEY+'_active');updateAuthUI();bootstrap.Modal.getOrCreateInstance(document.getElementById('authModal')).hide();}
+    function selectPlan(plan){document.getElementById('planMessage').textContent=plan==='Free'?'Free plan selected. You can use the current style-transfer demo now.':plan+' is shown as a product option; checkout is not connected yet.';}
+    function sendContact(event){
+        event.preventDefault(); const name=document.getElementById('contactName').value.trim(),email=document.getElementById('contactEmail').value.trim(),message=document.getElementById('contactMessage').value.trim();
+        const subject=encodeURIComponent('NeuralArt contact from '+name),body=encodeURIComponent('Name: '+name+'\nEmail: '+email+'\n\n'+message);
+        document.getElementById('contactStatus').textContent='Opening your email client...'; window.location.href='mailto:hello@neuralart.ai?subject='+subject+'&body='+body;
+    }
+    function openApiDocs(){bootstrap.Modal.getOrCreateInstance(document.getElementById('apiModal')).show();}
+    window.addEventListener('load',()=>{renderGallery();updateAuthUI();});
+
 </script>
 </body>
 </html>
