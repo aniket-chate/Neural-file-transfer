@@ -188,8 +188,8 @@ def image_to_data_uri(image_tensor):
     image = transforms.ToPILImage()(image).convert("RGB")
 
     buffer = io.BytesIO()
-    image.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
-    image.save(buffer, format="JPEG", quality=78, optimize=True)
+    image.thumbnail((900, 900), Image.Resampling.LANCZOS)
+    image.save(buffer, format="JPEG", quality=68, optimize=True)
     encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
     return f"data:image/jpeg;base64,{encoded}"
 
@@ -227,32 +227,35 @@ def index():
 
             # Uploads are processed directly from request memory.
             # Vercel Functions have a read-only deployment filesystem.
-            if not form.content.data or not form.content.data.filename:
+            content_file = request.files.get("content")
+            style_file = request.files.get("style")
+
+            if not content_file or not content_file.filename:
                 raise Exception("Please upload a content image.")
-            if not allowed_file(form.content.data.filename):
+            if not allowed_file(content_file.filename):
                 raise Exception("Unsupported content image format. Use JPG, JPEG, or PNG.")
 
-            if not form.style.data or not form.style.data.filename:
+            if not style_file or not style_file.filename:
                 raise Exception("Please upload a style image.")
-            if not allowed_file(form.style.data.filename):
+            if not allowed_file(style_file.filename):
                 raise Exception("Unsupported style image format. Use JPG, JPEG, or PNG.")
 
             content_filename = secure_filename(
-                os.path.basename(form.content.data.filename)
+                os.path.basename(content_file.filename)
             ) or "content.jpg"
             style_filename = secure_filename(
-                os.path.basename(form.style.data.filename)
+                os.path.basename(style_file.filename)
             ) or "style.jpg"
 
-            content_image = load_image(form.content.data)
-            style_image = load_image(form.style.data)
+            content_image = load_image(content_file)
+            style_image = load_image(style_file)
 
             # Keep previews in the same response; do not depend on generated
             # files surviving across serverless invocations.
             def preview_data_uri(image):
                 buffer = io.BytesIO()
-                image.thumbnail((480, 480), Image.Resampling.LANCZOS)
-                image.save(buffer, format="JPEG", quality=65, optimize=True)
+                image.thumbnail((360, 360), Image.Resampling.LANCZOS)
+                image.save(buffer, format="JPEG", quality=55, optimize=True)
                 encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
                 return f"data:image/jpeg;base64,{encoded}"
 
@@ -276,6 +279,7 @@ def index():
 
         except Exception as e:
             error = str(e)
+            app.logger.exception("Style transfer request failed")
             content_preview = None
             style_preview = None
 
