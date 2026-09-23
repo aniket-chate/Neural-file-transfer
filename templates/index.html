@@ -514,6 +514,7 @@
 <div class="container mb-5 fade-in-up">
     <form method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="return prepareUpload(event);">
         {{ form.hidden_tag() }}
+        {{ form.alpha(id="alphaValue") }}
         
         <div class="row g-4">
             <!-- Content Image Section -->
@@ -551,34 +552,38 @@
             </div>
         </div>
 
-        <!-- Controls Section -->
+        <!-- Submit Section: the style slider is intentionally OUTSIDE the form.
+             This prevents any range interaction from ever affecting file inputs. -->
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
-                <div class="range-wrap">
-                    <label for="alphaRange" class="form-label fw-bold mb-3 d-block text-center" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #a855f7;">STYLE STRENGTH</label>
-                    <div class="position-relative">
-                        <div class="range-value" id="rangeValue">1.0</div>
-                        <input
-                            id="alphaRange"
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value="{{ form.alpha.data or 1.0 }}"
-                            class="form-control-range"
-                            aria-label="Style strength"
-                        >
-                        <div id="alphaField" class="d-none">
-                            {{ form.alpha(id="alphaValue") }}
-                        </div>
-                    </div>
-                </div>
                 <div class="text-center mt-5">
-                    {{ form.submit(class="btn btn-primary shadow-lg btn-glow") }}
+                    {{ form.submit(class="btn btn-primary shadow-lg btn-glow", type="submit") }}
                 </div>
             </div>
         </div>
     </form>
+
+    <!-- Style strength is deliberately not form-associated. -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="range-wrap">
+                <label for="alphaRange" class="form-label fw-bold mb-3 d-block text-center" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #a855f7;">STYLE STRENGTH</label>
+                <div class="position-relative">
+                    <div class="range-value" id="rangeValue">1.0</div>
+                    <input
+                        id="alphaRange"
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value="1.0"
+                        class="form-control-range"
+                        aria-label="Style strength"
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% if result_image %}
     <div class="row justify-content-center mt-5" id="resultSection">
@@ -889,17 +894,27 @@
 
     function previewFile(input, previewId) {
         const preview = document.getElementById(previewId);
-        const file = input.files[0];
-        const reader = new FileReader();
+        const file = input && input.files ? input.files[0] : null;
+        if (!preview) return;
 
-        reader.addEventListener("load", function () {
-            // Convert image file to base64 string
-            preview.innerHTML = `<img src="${reader.result}" alt="Image Preview">`;
-        }, false);
-
-        if (file) {
-            reader.readAsDataURL(file);
+        if (!file) {
+            preview.innerHTML = '<span>Select Image</span>';
+            return;
         }
+
+        if (!file.type.startsWith('image/')) {
+            preview.innerHTML = '<span>Unsupported image type</span>';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = function () {
+            preview.innerHTML = '<span>Could not preview image</span>';
+        };
+        reader.onload = function () {
+            preview.innerHTML = `<img src="${reader.result}" alt="Image Preview">`;
+        };
+        reader.readAsDataURL(file);
     }
 
     // Restore previews if page reloads with data (optional enhancement)
@@ -1010,6 +1025,8 @@
             const percentage = ((val - min) * 100) / (max - min);
             
             rangeValue.textContent = val;
+            // The slider lives outside the upload form. Only this hidden field
+            // carries its value into the POST request.
             if (alphaValue) alphaValue.value = val;
             // Adjust position of the bubble to follow the thumb
             const thumbWidth = 24;
