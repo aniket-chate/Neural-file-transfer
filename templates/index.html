@@ -522,8 +522,8 @@
                     <div class="card-header text-center py-3">Content Source</div>
                     <div class="card-body text-center">
                         <div class="preview-image mb-3" id="contentPreview">
-                            {% if content_image %}
-                                <img src="{{ url_for('send_image', filename=content_image) }}" alt="Content Image">
+                            {% if content_preview %}
+                                <img src="{{ content_preview }}" alt="Content Image">
                             {% else %}
                                 <span>Select Content Image</span>
                             {% endif %}
@@ -539,8 +539,8 @@
                     <div class="card-header text-center py-3">Style Reference</div>
                     <div class="card-body text-center">
                         <div class="preview-image mb-3" id="stylePreview">
-                            {% if style_image %}
-                                <img src="{{ url_for('send_image', filename=style_image) }}" alt="Style Image">
+                            {% if style_preview %}
+                                <img src="{{ style_preview }}" alt="Style Image">
                             {% else %}
                                 <span>Select Style Image</span>
                             {% endif %}
@@ -574,10 +574,10 @@
             <div class="card border-success">
                 <div class="card-header bg-success text-white fw-bold text-center py-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Stylized Result</div>
                 <div class="card-body p-0">
-                    <img src="{{ url_for('send_image', filename=result_image) }}" class="img-fluid w-100" alt="Stylized Image" style="border-radius: 0 0 20px 20px;">
+                    <img src="{{ result_image }}" class="img-fluid w-100" alt="Stylized Image" style="border-radius: 0 0 20px 20px;">
                 </div>
                 <div class="card-footer text-center" style="background: transparent; border-top: none; padding-bottom: 20px;">
-                    <a href="{{ url_for('send_image', filename=result_image) }}" download class="btn btn-outline-light mt-2">Download Result</a>
+                    <a href="{{ result_image }}" download="neuralart_result.jpg" class="btn btn-outline-light mt-2">Download Result</a>
                 </div>
             </div>
         </div>
@@ -810,7 +810,7 @@
                                 return;
                             }
                             if (blob.size <= maxBytes || quality <= 0.5) {
-                                const baseName = (file.name || 'image').replace(/\\.[^.]+$/, '');
+                                const baseName = (file.name || 'image').replace(/\.[^/.]+$/, '');
                                 resolve(new File([blob], baseName + '.jpg', {
                                     type: 'image/jpeg',
                                     lastModified: Date.now()
