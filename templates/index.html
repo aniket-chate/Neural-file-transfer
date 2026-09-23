@@ -555,10 +555,22 @@
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 <div class="range-wrap">
-                    <label for="alpha" class="form-label fw-bold mb-3 d-block text-center" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #a855f7;">STYLE STRENGTH</label>
+                    <label for="alphaRange" class="form-label fw-bold mb-3 d-block text-center" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #a855f7;">STYLE STRENGTH</label>
                     <div class="position-relative">
                         <div class="range-value" id="rangeValue">1.0</div>
-                        {{ form.alpha(class="form-control-range", id="alphaRange", type="range", min="0", max="1", step="0.1") }}
+                        <input
+                            id="alphaRange"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value="{{ form.alpha.data or 1.0 }}"
+                            class="form-control-range"
+                            aria-label="Style strength"
+                        >
+                        <div id="alphaField" class="d-none">
+                            {{ form.alpha(id="alphaValue") }}
+                        </div>
                     </div>
                 </div>
                 <div class="text-center mt-5">
@@ -989,6 +1001,7 @@
         // Range Slider Logic
         const range = document.getElementById('alphaRange');
         const rangeValue = document.getElementById('rangeValue');
+        const alphaValue = document.getElementById('alphaValue');
 
         function updateRange() {
             const val = range.value;
@@ -997,6 +1010,7 @@
             const percentage = ((val - min) * 100) / (max - min);
             
             rangeValue.textContent = val;
+            if (alphaValue) alphaValue.value = val;
             // Adjust position of the bubble to follow the thumb
             const thumbWidth = 24;
             const offset = thumbWidth/2 - (percentage * thumbWidth / 100);
