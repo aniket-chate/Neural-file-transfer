@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "utils/app.py": {
+      "maxDuration": 300,
+      "excludeFiles": "{experiment/trial/**,experiment/experiment2/**,experiment/experiment4/**,experiment/experiment5/**,experiment/big_dataset/**,experiment/final_exp/sample_iter_*.png,utils/static/**}"
+    }
+  }
+}
