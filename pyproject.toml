@@ -2,6 +2,16 @@
 name = "neural-file-transfer"
 version = "0.1.0"
 requires-python = ">=3.12"
+dependencies = [
+  "Flask>=3.0.0",
+  "Flask-Bootstrap",
+  "Flask-WTF",
+  "WTForms",
+  "Werkzeug",
+  "Pillow",
+  "torch",
+  "torchvision",
+]
 
 [tool.vercel]
 entrypoint = "utils.app:app"
