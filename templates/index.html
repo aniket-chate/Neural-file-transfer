@@ -512,7 +512,7 @@
 </div>
 
 <div class="container mb-5 fade-in-up">
-    <form method="post" enctype="multipart/form-data" id="uploadForm">
+    <form method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="return prepareUpload(event);">
         {{ form.hidden_tag() }}
         
         <div class="row g-4">
@@ -770,6 +770,111 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Vercel request-body protection: compress large mobile images in the browser
+    // before the multipart POST so the total request stays comfortably below Vercel's 4.5 MB limit.
+    const MAX_UPLOAD_BYTES = 1500000;
+    const MAX_IMAGE_DIMENSION = 1600;
+
+    function compressImageFile(file, maxBytes = MAX_UPLOAD_BYTES) {
+        return new Promise((resolve, reject) => {
+            if (!file || !file.type.startsWith('image/')) {
+                resolve(file);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('Could not read image.'));
+            reader.onload = () => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('Could not decode image.'));
+                img.onload = () => {
+                    let width = img.naturalWidth;
+                    let height = img.naturalHeight;
+                    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(width, height));
+                    width = Math.max(1, Math.round(width * scale));
+                    height = Math.max(1, Math.round(height * scale));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d', { alpha: false });
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    let quality = 0.86;
+                    const encode = () => {
+                        canvas.toBlob(blob => {
+                            if (!blob) {
+                                reject(new Error('Image compression failed.'));
+                                return;
+                            }
+                            if (blob.size <= maxBytes || quality <= 0.5) {
+                                const baseName = (file.name || 'image').replace(/\\.[^.]+$/, '');
+                                resolve(new File([blob], baseName + '.jpg', {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                }));
+                                return;
+                            }
+                            quality -= 0.08;
+                            encode();
+                        }, 'image/jpeg', quality);
+                    };
+                    encode();
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function prepareUpload(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const contentInput = document.getElementById('content');
+        const styleInput = document.getElementById('style');
+        const submitButton = document.getElementById('submit');
+
+        try {
+            if (!contentInput.files.length || !styleInput.files.length) {
+                form.submit();
+                return false;
+            }
+
+            submitButton.disabled = true;
+            submitButton.value = 'OPTIMIZING IMAGES...';
+
+            const [contentFile, styleFile] = await Promise.all([
+                compressImageFile(contentInput.files[0]),
+                compressImageFile(styleInput.files[0])
+            ]);
+
+            const replaceFile = (input, file) => {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+            };
+            replaceFile(contentInput, contentFile);
+            replaceFile(styleInput, styleFile);
+
+            const totalBytes = contentFile.size + styleFile.size;
+            if (totalBytes > 3800000) {
+                throw new Error('Images are still too large. Please choose smaller images.');
+            }
+
+            document.getElementById('loader')?.classList.add('active');
+            submitButton.value = 'TRANSFERRING STYLE...';
+            HTMLFormElement.prototype.submit.call(form);
+        } catch (error) {
+            console.error(error);
+            submitButton.disabled = false;
+            submitButton.value = 'Transfer Style';
+            alert(error.message || 'Could not prepare the images for upload.');
+        }
+        return false;
+    }
+
     function previewFile(input, previewId) {
         const preview = document.getElementById(previewId);
         const file = input.files[0];
