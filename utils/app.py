@@ -81,9 +81,9 @@ class UploadForm(FlaskForm):
 
     style_path = HiddenField()
 
-    alpha = FloatField(
+    alpha = HiddenField(
         "Alpha",
-        default=1.0
+        default="1.0"
     )
 
     submit = SubmitField("Transfer Style")
@@ -221,7 +221,7 @@ def index():
     if request.method == "POST":
 
         try:
-            alpha = float(form.alpha.data or 1.0)
+            alpha = float(request.form.get("alpha", "1.0") or "1.0")
             if not 0.0 <= alpha <= 1.0:
                 raise Exception("Style strength must be between 0 and 1.")
 
