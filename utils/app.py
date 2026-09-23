@@ -1,3 +1,5 @@
+import base64
+import io
 import os
 from pathlib import Path
 
@@ -34,13 +36,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 TEMPLATE_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
-UPLOAD_DIR = STATIC_DIR / "uploads"
 EXAMPLES_DIR = BASE_DIR / "examples"
 
 VGG_PATH = BASE_DIR / "utils" / "vgg_normalised.pth"
 DECODER_PATH = BASE_DIR / "experiment" / "final_exp" / "decoder_final.pth"
-
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
@@ -54,8 +53,6 @@ app = Flask(
 )
 
 app.config["SECRET_KEY"] = "supersecretkey"
-
-app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
 
 app.config["ALLOWED_EXTENSIONS"] = {
     "jpg",
@@ -176,24 +173,30 @@ def style_transfer(content_image, style_image, encoder, decoder, alpha, device):
 # Save Tensor Image
 # ============================================================
 
-def save_image(image_tensor, save_path):
+def image_to_data_uri(image_tensor):
+    """Convert the generated tensor directly to an in-memory JPEG data URI.
 
+    Vercel Functions have a read-only deployment filesystem, so generated
+    request-specific files must not be written under the project directory.
+    """
     image = image_tensor.detach().cpu().squeeze(0)
-
     image = image.clamp(0, 1)
+    image = transforms.ToPILImage()(image).convert("RGB")
 
-    image = transforms.ToPILImage()(image)
-
-    image.save(save_path)
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=92, optimize=True)
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/jpeg;base64,{encoded}"
 
 
 # ============================================================
 # Load Image
 # ============================================================
 
-def load_image(path):
-
-    with Image.open(path) as img:
+def load_image(file_storage):
+    """Load an uploaded image directly from the request into memory."""
+    file_storage.stream.seek(0)
+    with Image.open(file_storage.stream) as img:
         return img.convert("RGB")
     
 # ============================================================
@@ -213,91 +216,44 @@ def index():
     if request.method == "POST":
 
         try:
-
             alpha = float(form.alpha.data or 1.0)
+            if not 0.0 <= alpha <= 1.0:
+                raise Exception("Style strength must be between 0 and 1.")
 
-            # -------------------------
-            # Content Image
-            # -------------------------
+            # Uploads are processed directly from request memory.
+            # Vercel Functions have a read-only deployment filesystem.
+            if not form.content.data or not form.content.data.filename:
+                raise Exception("Please upload a content image.")
+            if not allowed_file(form.content.data.filename):
+                raise Exception("Unsupported content image format. Use JPG, JPEG, or PNG.")
 
-            if form.content.data and form.content.data.filename != "":
+            if not form.style.data or not form.style.data.filename:
+                raise Exception("Please upload a style image.")
+            if not allowed_file(form.style.data.filename):
+                raise Exception("Unsupported style image format. Use JPG, JPEG, or PNG.")
 
-                if not allowed_file(form.content.data.filename):
-                    raise Exception("Unsupported content image format.")
+            content_filename = secure_filename(
+                os.path.basename(form.content.data.filename)
+            ) or "content.jpg"
+            style_filename = secure_filename(
+                os.path.basename(form.style.data.filename)
+            ) or "style.jpg"
 
-                content_filename = secure_filename(
-                    os.path.basename(form.content.data.filename)
-                )
+            content_image = load_image(form.content.data)
+            style_image = load_image(form.style.data)
 
-                content_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    content_filename
-                )
+            # Keep previews in the same response; do not depend on generated
+            # files surviving across serverless invocations.
+            def preview_data_uri(image):
+                buffer = io.BytesIO()
+                image.save(buffer, format="JPEG", quality=88, optimize=True)
+                encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+                return f"data:image/jpeg;base64,{encoded}"
 
-                form.content.data.save(content_path)
+            content_preview = preview_data_uri(content_image)
+            style_preview = preview_data_uri(style_image)
 
-                form.content_path.data = content_filename
-
-            else:
-
-                content_filename = form.content_path.data
-
-                if not content_filename:
-                    raise Exception("Please upload a content image.")
-
-                content_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    content_filename
-                )
-
-            # -------------------------
-            # Style Image
-            # -------------------------
-
-            if form.style.data and form.style.data.filename != "":
-
-                if not allowed_file(form.style.data.filename):
-                    raise Exception("Unsupported style image format.")
-
-                style_filename = secure_filename(
-                    os.path.basename(form.style.data.filename)
-                )
-
-                style_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    style_filename
-                )
-
-                form.style.data.save(style_path)
-
-                form.style_path.data = style_filename
-
-            else:
-
-                style_filename = form.style_path.data
-
-                if not style_filename:
-                    raise Exception("Please upload a style image.")
-
-                style_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    style_filename
-                )
-
-            # -------------------------
-            # Load Images
-            # -------------------------
-
-            content_image = load_image(content_path)
-
-            style_image = load_image(style_path)
-
-            # -------------------------
-            # Style Transfer
-            # -------------------------
             load_models()
-            
-            
 
             with torch.inference_mode():
                 output = style_transfer(
@@ -309,24 +265,13 @@ def index():
                     device
                 )
 
-            # -------------------------
-            # Save Result
-            # -------------------------
-
-            result_filename = f"stylized_{content_filename}"
-
-            result_path = os.path.join(
-                app.config["UPLOAD_FOLDER"],
-                result_filename
-            )
-
-            save_image(output, result_path)
-
-            result_image = result_filename
+            # Return the generated image in the same HTTP response.
+            result_image = image_to_data_uri(output)
 
         except Exception as e:
-
             error = str(e)
+            content_preview = None
+            style_preview = None
 
     return render_template(
         "index.html",
@@ -334,6 +279,8 @@ def index():
         result_image=result_image,
         content_image=content_filename,
         style_image=style_filename,
+        content_preview=locals().get("content_preview"),
+        style_preview=locals().get("style_preview"),
         error=error
     )
 
@@ -376,7 +323,6 @@ if __name__ == "__main__":
     print(f"Device : {device}")
     print(f"Templates : {TEMPLATE_DIR}")
     print(f"Static : {STATIC_DIR}")
-    print(f"Uploads : {UPLOAD_DIR}")
     print("==============================\n")
 
     app.run(
