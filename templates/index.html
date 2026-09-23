@@ -557,7 +557,7 @@
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 <div class="text-center mt-5">
-                    {{ form.submit(class="btn btn-primary shadow-lg btn-glow", type="submit") }}
+                    {{ form.submit(class="btn btn-primary shadow-lg btn-glow", type="submit", id="submit") }}
                 </div>
             </div>
         </div>
@@ -585,8 +585,9 @@
         </div>
     </div>
 
-    {% if result_image %}
-    <div class="row justify-content-center mt-5" id="resultSection">
+    <div id="resultContainer">
+{% if result_image %}
+<div class="row justify-content-center mt-5" id="resultSection">
         <div class="col-md-8">
             <div class="card border-success">
                 <div class="card-header bg-success text-white fw-bold text-center py-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Stylized Result</div>
@@ -599,13 +600,10 @@
             </div>
         </div>
     </div>
-    {% endif %}
+{% endif %}
+    </div>
 
-    {% if error %}
-        <div class="alert alert-danger mt-4 text-center" role="alert" style="background: rgba(220, 38, 38, 0.2); border-color: #dc2626; color: #fecaca;">
-            <strong>Error:</strong> {{ error }}
-        </div>
-    {% endif %}
+    <div id="uploadError" class="alert alert-danger mt-4 text-center{% if not error %} d-none{% endif %}" role="alert" style="background: rgba(220, 38, 38, 0.2); border-color: #dc2626; color: #fecaca;">{% if error %}<strong>Error:</strong> {{ error }}{% endif %}</div>
 </div>
 
 <section class="container examples-section fade-in-up">
@@ -848,47 +846,113 @@
 
     async function prepareUpload(event) {
         event.preventDefault();
+
         const form = event.currentTarget;
         const contentInput = document.getElementById('content');
         const styleInput = document.getElementById('style');
         const submitButton = document.getElementById('submit');
+        const alphaRange = document.getElementById('alphaRange');
+        const alphaValue = document.getElementById('alphaValue');
+        const loader = document.getElementById('loader');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorContainer = document.getElementById('uploadError');
+
+        const showError = (message) => {
+            if (errorContainer) {
+                errorContainer.innerHTML = '<strong>Error:</strong> ' + message;
+                errorContainer.classList.remove('d-none');
+            } else {
+                alert(message);
+            }
+        };
+
+        const clearError = () => {
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+                errorContainer.classList.add('d-none');
+            }
+        };
 
         try {
-            if (!contentInput.files.length || !styleInput.files.length) {
-                HTMLFormElement.prototype.submit.call(form);
-                return false;
+            clearError();
+
+            if (!contentInput?.files?.length) {
+                throw new Error('Please upload a content image.');
             }
+            if (!styleInput?.files?.length) {
+                throw new Error('Please upload a style image.');
+            }
+
+            const alpha = alphaRange ? Number(alphaRange.value) : 1.0;
+            if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) {
+                throw new Error('Style strength must be between 0 and 1.');
+            }
+            if (alphaValue) alphaValue.value = alpha.toFixed(1);
 
             submitButton.disabled = true;
             submitButton.value = 'OPTIMIZING IMAGES...';
+            loader?.classList.add('active');
 
             const [contentFile, styleFile] = await Promise.all([
                 compressImageFile(contentInput.files[0]),
                 compressImageFile(styleInput.files[0])
             ]);
 
-            const replaceFile = (input, file) => {
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
-            };
-            replaceFile(contentInput, contentFile);
-            replaceFile(styleInput, styleFile);
-
             const totalBytes = contentFile.size + styleFile.size;
             if (totalBytes > 3800000) {
                 throw new Error('Images are still too large. Please choose smaller images.');
             }
 
-            document.getElementById('loader')?.classList.add('active');
+            // Send a multipart request with fetch instead of native form navigation.
+            // The original file inputs remain untouched, so the browser never clears them.
+            const formData = new FormData(form);
+            formData.set('content', contentFile, contentFile.name);
+            formData.set('style', styleFile, styleFile.name);
+            formData.set('alpha', String(alpha));
+
             submitButton.value = 'TRANSFERRING STYLE...';
-            HTMLFormElement.prototype.submit.call(form);
+
+            const response = await fetch(form.action || window.location.href, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            const responseText = await response.text();
+
+            if (!response.ok) {
+                throw new Error('Server returned HTTP ' + response.status + '.');
+            }
+
+            const responseDoc = new DOMParser().parseFromString(responseText, 'text/html');
+            const serverError = responseDoc.querySelector('#uploadError');
+            const serverResult = responseDoc.querySelector('#resultSection');
+
+            if (serverError && !serverError.classList.contains('d-none')) {
+                throw new Error(serverError.textContent.replace(/^Error:\s*/i, '').trim());
+            }
+
+            if (!serverResult) {
+                throw new Error('The server did not return a generated image.');
+            }
+
+            if (resultContainer) {
+                resultContainer.innerHTML = '';
+                resultContainer.appendChild(document.importNode(serverResult, true));
+            }
+
+            clearError();
+            resultContainer?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } catch (error) {
-            console.error(error);
+            console.error('Style transfer failed:', error);
+            showError(error.message || 'Could not process the images.');
+        } finally {
+            loader?.classList.remove('active');
             submitButton.disabled = false;
             submitButton.value = 'Transfer Style';
-            alert(error.message || 'Could not prepare the images for upload.');
         }
+
         return false;
     }
 
