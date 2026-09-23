@@ -475,7 +475,14 @@
     .faq-section .accordion-body {
         color: #94a3b8;
     }
-    .gallery-section,.features-section,.pricing-section,.contact-section{margin-top:4rem;} html{scroll-behavior:smooth;scroll-padding-top:90px;}
+    .gallery-section,.features-section{margin-top:4rem;}
+    body { color: #e2e8f0; }
+    .card-body, .card-body p, .card-body h1, .card-body h2, .card-body h3, .card-body h4, .card-body h5, .card-body h6 { color: #e2e8f0; }
+    .text-muted { color: #cbd5e1 !important; }
+    .footer-section, .footer-section p, .footer-section .small { color: #cbd5e1; }
+    .footer-section .text-muted { color: #cbd5e1 !important; }
+    .form-control::placeholder { color: #94a3b8; opacity: 1; }
+    html{scroll-behavior:smooth;scroll-padding-top:90px;}
 </style>
 </head>
 <body>
@@ -497,7 +504,6 @@
                 <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
                 <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
                 <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
             </ul>
             <button type="button" class="btn btn-sm btn-outline-light ms-3 rounded-pill px-4" onclick="openAuthModal()">Sign In</button>
@@ -687,39 +693,9 @@
     </div>
 </section>
 
-<section class="container pricing-section fade-in-up" id="pricing">
-    <div class="card">
-        <div class="card-header text-center py-3">Pricing</div>
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Free</h5><div class="display-6 fw-bold mb-3">₹0</div><p class="text-muted">Try the core style-transfer experience.</p><button type="button" class="btn btn-outline-light rounded-pill" onclick="selectPlan('Free')">Use Free</button></div></div>
-                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Creator</h5><div class="display-6 fw-bold mb-3">₹199</div><p class="text-muted">Planned creator features and saved artwork workflow.</p><button type="button" class="btn btn-primary rounded-pill" onclick="selectPlan('Creator')">Choose Creator</button></div></div>
-                <div class="col-md-4"><div class="p-4 text-center h-100 border rounded-4"><h5>Studio</h5><div class="display-6 fw-bold mb-3">₹499</div><p class="text-muted">Planned higher-volume workflow for advanced users.</p><button type="button" class="btn btn-outline-light rounded-pill" onclick="selectPlan('Studio')">Choose Studio</button></div></div>
-            </div>
-            <p id="planMessage" class="text-center text-muted mt-4 mb-0"></p>
-        </div>
-    </div>
-</section>
 
-<section class="container contact-section fade-in-up" id="contact">
-    <div class="card">
-        <div class="card-header text-center py-3">Contact</div>
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-5"><h5>Let's connect</h5><p class="text-muted">Have feedback, a bug report, or a collaboration idea? Send a message.</p><p class="mb-2"><i class="fas fa-envelope me-2"></i>hello@neuralart.ai</p><button type="button" class="btn btn-outline-light rounded-pill mt-2" onclick="openApiDocs()">View API Docs</button></div>
-                <div class="col-md-7">
-                    <form id="contactForm" onsubmit="sendContact(event)">
-                        <input class="form-control mb-3" id="contactName" placeholder="Your name" required>
-                        <input class="form-control mb-3" id="contactEmail" type="email" placeholder="Your email" required>
-                        <textarea class="form-control mb-3" id="contactMessage" rows="4" placeholder="Your message" required></textarea>
-                        <button class="btn btn-primary rounded-pill" type="submit">Send Message</button>
-                    </form>
-                    <div id="contactStatus" class="small text-muted mt-3"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
+
 
 <section class="container faq-section fade-in-up">
     <div class="card">
@@ -791,41 +767,36 @@
     </div>
 </section>
 
-<footer class="footer-section">
+<footer class="footer-section" id="contact">
     <div class="container">
-        <div class="row g-4">
+        <div class="row g-4 align-items-start">
             <div class="col-lg-4 col-md-6">
                 <h5><i class="fas fa-brain me-2"></i>NeuralArt</h5>
-                <p class="mb-4">"Every artist dips his brush in his own soul, and paints his own nature into his pictures."</p>
-                <p class="small text-muted">Empowering creators with state-of-the-art AI tools to reimagine reality through the lens of artistic expression.</p>
+                <p class="mb-3">AI-powered neural style transfer for turning ordinary images into artistic creations.</p>
+                <p class="small mb-0">Built as a B.Tech Data Science project by Aniket Chate.</p>
             </div>
             <div class="col-lg-2 col-md-6">
                 <h5>Quick Links</h5>
                 <a href="#home" class="footer-link">Home</a>
-                <a href="#features" class="footer-link">About Us</a>
-                <a href="#gallery" class="footer-link">Showcase</a>
-                <a href="#contact" class="footer-link" onclick="openApiDocs(); return false;">API Docs</a>
+                <a href="#features" class="footer-link">Features</a>
+                <a href="#gallery" class="footer-link">Gallery</a>
+                <a href="#contact" class="footer-link">Contact</a>
             </div>
             <div class="col-lg-3 col-md-6">
-                <h5>Contact Us</h5>
-                <p class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Innovation Dr, Tech City</p>
-                <p class="mb-2"><i class="fas fa-envelope me-2"></i> hello@neuralart.ai</p>
-                <p class="mb-2"><i class="fas fa-phone me-2"></i> +1 (555) 123-4567</p>
+                <h5>Contact</h5>
+                <p class="mb-2"><i class="fab fa-github me-2"></i><a class="footer-link d-inline" href="https://github.com/aniket-chate/Neural-file-transfer" target="_blank" rel="noopener">GitHub Project</a></p>
+                <p class="mb-2"><i class="fas fa-location-dot me-2"></i>Jalna, Maharashtra, India</p>
+                <p class="small mb-0">For project feedback or collaboration, use the GitHub repository.</p>
             </div>
             <div class="col-lg-3 col-md-6">
-                <h5>Follow Us</h5>
-                <div class="d-flex mb-3">
-                    <a href="https://twitter.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://github.com/aniket-chate/Neural-file-transfer" target="_blank" rel="noopener" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                </div>
-                <p class="small text-muted">Subscribe to our newsletter for the latest updates.</p>
+                <h5>Project</h5>
+                <p class="mb-3">Neural Style Transfer using AdaIN and a Flask web application.</p>
+                <a href="https://github.com/aniket-chate/Neural-file-transfer" target="_blank" rel="noopener" class="btn btn-outline-light rounded-pill">View on GitHub</a>
             </div>
         </div>
-        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center text-muted small">
-            &copy; 2025 NeuralArt Inc. All rights reserved. | Privacy Policy | Terms of Service
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.18);">
+        <div class="text-center small">
+            &copy; 2026 NeuralArt. Built for creative experimentation.
         </div>
     </div>
 </footer>
@@ -1256,7 +1227,6 @@
         if(active&&account){document.getElementById('accountName').textContent='Welcome, '+account.name;document.getElementById('accountEmail').textContent=account.email;}
     }
     function signOut(){localStorage.removeItem(ACCOUNT_KEY+'_active');updateAuthUI();bootstrap.Modal.getOrCreateInstance(document.getElementById('authModal')).hide();}
-    function selectPlan(plan){document.getElementById('planMessage').textContent=plan==='Free'?'Free plan selected. You can use the current style-transfer demo now.':plan+' is shown as a product option; checkout is not connected yet.';}
     function sendContact(event){
         event.preventDefault(); const name=document.getElementById('contactName').value.trim(),email=document.getElementById('contactEmail').value.trim(),message=document.getElementById('contactMessage').value.trim();
         const subject=encodeURIComponent('NeuralArt contact from '+name),body=encodeURIComponent('Name: '+name+'\nEmail: '+email+'\n\n'+message);
