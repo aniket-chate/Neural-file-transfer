@@ -36,11 +36,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 TEMPLATE_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
+UPLOAD_DIR = Path("/tmp/neuralart_uploads")
 EXAMPLES_DIR = BASE_DIR / "examples"
 
 VGG_PATH = BASE_DIR / "utils" / "vgg_normalised.pth"
 DECODER_PATH = BASE_DIR / "experiment" / "final_exp" / "decoder_final.pth"
 
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # ============================================================
 # Flask App
@@ -53,6 +55,8 @@ app = Flask(
 )
 
 app.config["SECRET_KEY"] = "supersecretkey"
+
+app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
 
 app.config["ALLOWED_EXTENSIONS"] = {
     "jpg",
