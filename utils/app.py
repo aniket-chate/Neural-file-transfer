@@ -188,7 +188,8 @@ def image_to_data_uri(image_tensor):
     image = transforms.ToPILImage()(image).convert("RGB")
 
     buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=92, optimize=True)
+    image.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
+    image.save(buffer, format="JPEG", quality=78, optimize=True)
     encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
     return f"data:image/jpeg;base64,{encoded}"
 
@@ -250,7 +251,8 @@ def index():
             # files surviving across serverless invocations.
             def preview_data_uri(image):
                 buffer = io.BytesIO()
-                image.save(buffer, format="JPEG", quality=88, optimize=True)
+                image.thumbnail((480, 480), Image.Resampling.LANCZOS)
+                image.save(buffer, format="JPEG", quality=65, optimize=True)
                 encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
                 return f"data:image/jpeg;base64,{encoded}"
 
