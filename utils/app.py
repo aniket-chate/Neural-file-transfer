@@ -321,6 +321,17 @@ def send_example(filename):
     )
 
 
+# Keep the second demo result on a URL-safe route because its source filename
+# contains parentheses, which can be rejected by the Vercel/Flask path layer.
+@app.route("/examples/picasso-result")
+def send_picasso_result():
+
+    return send_from_directory(
+        EXAMPLES_DIR,
+        "stylized_brad_pitt (1).jpg"
+    )
+
+
 # ============================================================
 # Run Server
 # ============================================================
